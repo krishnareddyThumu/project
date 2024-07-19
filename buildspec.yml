@@ -34,3 +34,13 @@ phases:
       - echo "updating lambda Function..."
       - aws lambda update-function-code --function-name project --zip-file fileb://deployment_package.zip
       - echo "DONE!!"
+
+ artifacts:
+  files:
+    - deployment_package.zip
+  name: lambda-artifact-$(date +%Y-%m-%d-%H-%M-%S)
+  discard-paths: yes
+
+cache:
+  paths:
+    - '/root/.cache/pip'
