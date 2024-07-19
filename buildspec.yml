@@ -1,27 +1,36 @@
 version: 0.2
 
 phases:
+
   install:
+
     runtime-versions:
-      python: 3.9
-  pre_build:
+
+      python: 3.11
+
     commands:
+
       - echo "Installing dependencies..."
-      - pip install -r requirements.txt
+
+      - pip install -r requirements.txt -t lib
+
   build:
+
     commands:
-      - echo "Running tests..."
-      - python -m pytest
-      - echo "Building project..."
-      - pip install --target ./package -r requirements.txt
 
-artifacts:
-  type: zip
-  files:
-    - lambda_function.py
-    - package/**/*
-  name: lambda-function-$(date +%Y-%m-%d-%H-%M-%S).zip
+      - echo "Zipping deployment package..."
 
-cache:
-  paths:
-    - '/root/.cache/pip'
+      - cd lib
+
+      - zip -r9 ../deployment_package.zip .
+
+      - cd ..
+
+      - zip -g deployment_package.zip lambda_function.py.py
+
+  post_build:
+  
+    commands:
+      - echo "updating lambda Function..."
+      - aws lambda update-function-code --function-name project --zip-file fileb://deployment_package.zip
+      - echo "DONE!!"
